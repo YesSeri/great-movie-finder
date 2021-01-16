@@ -1,0 +1,12 @@
+{
+  "name": "omdb-best-series",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Henrik Zenkert",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "dependencies": {
+  }
+}
