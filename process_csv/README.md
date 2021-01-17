@@ -2,10 +2,11 @@
 ## Finding Data
 Explanation of data is here https://www.imdb.com/interfaces/.
 The data is here: https://datasets.imdbws.com/
-It gets updated daily. 
+
+You need the two files are `title.basics.tsv.gz` and `title.ratings.tsv`. They get updated daily. 
 
 ## Process
-I unzip the data and then first use merge_csv.py to merge the ratings info with info on what kind of thing it is. Short movie, tv series and movies. 
+First unzip the data and then use merge_csv.py to merge the ratings info with info on what kind of thing it is. Short movie, tv series and movies. 
 
 I only want movies, and they should have a high user rating, and many votes. This is what filter_csv.csv is used for. 
 
@@ -24,6 +25,7 @@ CREATE TABLE movies
 
 LOAD DATA LOCAL INFILE 
 	'C:/Programming/omdb-best-series/csvHandling/processed_data.csv'
+	'/home/henrikz/projects/langs/react/great-movie-finder/process_csv/processed_data.csv'
  	INTO TABLE movies 
 	FIELDS TERMINATED BY ',' 
 	LINES TERMINATED BY '\n' 
