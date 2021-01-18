@@ -1,22 +1,28 @@
 // Express
-const express = require('express')
-const app = express()
+const express = require("express");
+const app = express();
 
 // Logger
-const { expressLogger, logger } = require('./utils/pino')
+const { expressLogger, logger } = require("./utils/pino");
 
 // .env files
-const dotenv = require('dotenv')
-const result = dotenv.config()
+const dotenv = require("dotenv");
+const result = dotenv.config();
 if (result.error) {
-  throw result.error
+	throw result.error;
 }
 
-app.use(expressLogger);
+// app.use(expressLogger);
 
-const PORT = 5000 || process.env.PORT
+const PORT = 5000 || process.env.PORT;
 
-app.use('/api', require('./routes/api'))
-app.use('*', require('./routes/index'))
+app.use("/api", require("./routes/api"));
+app.use("*", require("./routes/index"));
 
-app.listen(PORT, () => { logger.info(`listening at port ${PORT}`) })
+app.listen(PORT, () => {
+	logger.info({
+		message: `listening at port ${PORT}. `,
+		url: `localhost:${PORT}`,
+		apiUrl: `localhost:${PORT}/api/movies`,
+	});
+});

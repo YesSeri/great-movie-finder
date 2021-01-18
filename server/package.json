@@ -11,10 +11,12 @@
     "node": "node server.js"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-pino-logger": "^5.0.0",
     "knex": "^0.21.16",
+    "knex-paginate": "^1.2.3",
     "mysql2": "^2.2.5",
     "pino": "^6.11.0"
   },
