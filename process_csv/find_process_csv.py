@@ -17,7 +17,6 @@ def delete(dir_path):
         print(str(dir_path) + " does not exist, and can't be deleted")
 
 
-
 def create_dir(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -36,23 +35,6 @@ def unzip(data):
         print(f_out.name + 'has been unzipped, from ' + f_in.name)
 
 
-def isMovie(row):
-    if (row[3] == 'movie'):
-        return True
-    return False
-
-
-def isGoodMovie(row):
-    try:
-        rating = float(row[1])
-        numVotes = int(row[2])
-        if rating > 8.2 and numVotes > 1300:
-            return True
-    except ValueError:
-        print('Oops!', sys.exc_info()[0], 'occurred.')
-    return False
-
-
 def merge_data(path1, path2, output_path):
 
     file1 = pd.read_csv(path1, sep='\t', low_memory=False)
@@ -66,6 +48,21 @@ def merge_data(path1, path2, output_path):
 
 
 def filter_data(output_file, input_file):
+    def isMovie(row):
+        if (row[3] == 'movie'):
+            return True
+        return False
+
+    def isGoodMovie(row):
+        try:
+            rating = float(row[1])
+            numVotes = int(row[2])
+            if rating > 8.2 and numVotes > 1300:
+                return True
+        except ValueError:
+            print('Oops!', sys.exc_info()[0], 'occurred.')
+        return False
+
     with open(input_file) as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='|')
         header = next(reader)
@@ -81,17 +78,18 @@ def filter_data(output_file, input_file):
 
 if __name__ == '__main__':
     folder = Path.cwd() / 'data'
-    basics = {
-        'file_name': folder / 'title.basics.tsv',
-        'zip_name': folder / 'title.basics.tsv.gz',
-        'url': 'https://datasets.imdbws.com/title.basics.tsv.gz',
-    }
+
     ratings = {
         'file_name': folder / 'title.ratings.tsv',
         'zip_name':  folder / 'title.ratings.tsv.gz',
         'url': 'https://datasets.imdbws.com/title.ratings.tsv.gz',
     }
-    arr = [basics, ratings]
+    basics = {
+        'file_name': folder / 'title.basics.tsv',
+        'zip_name': folder / 'title.basics.tsv.gz',
+        'url': 'https://datasets.imdbws.com/title.basics.tsv.gz',
+    }
+    arr = [ratings, basics]
 
     delete(folder)
     create_dir(folder)
