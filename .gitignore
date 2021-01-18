@@ -120,10 +120,4 @@ tags
 __pycache__
 
 # Csv and database
-title.ratings.tsv*
-name.basics.tsv*
-csvProcessedData
-csvRawData
-title.basics.tsv*
-merged.csv
-processed_data.csv
+/process_csv/data
