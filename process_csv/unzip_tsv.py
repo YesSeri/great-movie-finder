@@ -1,12 +1,16 @@
 from pathlib import Path
-import gzip, shutil
+import gzip
+import shutil
+
 
 def unzip(file):
-	with gzip.open(file.name, 'r') as f_in, open(file.name[:-3], 'wb') as f_out:
-		shutil.copyfileobj(f_in, f_out)
+    with gzip.open(file.name, 'r') as f_in, open(file.name[:-3], 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
+        print(f_out.name + 'has been unzipped, from ' + f_in.name)
+
 
 if __name__ == '__main__':
-	file1 = Path.cwd() / 'title.basics.tsv.gz'
-	file2 = Path.cwd() / 'title.ratings.tsv.gz'
-	unzip(file1)
-	unzip(file2)
+    file1 = Path.cwd() / 'title.basics.tsv.gz'
+    file2 = Path.cwd() / 'title.ratings.tsv.gz'
+    unzip(file1)
+    unzip(file2)

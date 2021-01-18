@@ -13,7 +13,7 @@ def merge_data():
     df = file1.merge(file2, on='tconst')
 
     dfMerged = df[['tconst', 'averageRating', 'numVotes', 'titleType']]
-    dfMerged.to_csv('merged.csv', index=False)
+    dfMerged.to_csv(output_path, index=False)
     print('Csv files have been merged.')
 
 

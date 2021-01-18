@@ -2,25 +2,27 @@ import csv
 import sys
 from pathlib import Path
 
+
 def isMovie(row):
-	if (row[3] == 'movie'):
-		return True
-	return False
+    if (row[3] == 'movie'):
+        return True
+    return False
+
 
 def isGoodMovie(row):
-	try:
-		rating = float(row[1])
-		numVotes = int(row[2])
-		if rating > 8.2 and numVotes > 1300:
-			return True
-	except:
-		print("Oops!", sys.exc_info()[0], "occurred.")
-	return False
+    try:
+        rating = float(row[1])
+        numVotes = int(row[2])
+        if rating > 8.2 and numVotes > 1300:
+            return True
+    except ValueError:
+        print('Oops!', sys.exc_info()[0], 'occurred.')
+    return False
+
 
 def filter_data(output_name='processed_data.csv'):
     output_file = Path.cwd() / output_name
     input_file = Path.cwd() / 'merged.csv'
-
 
     with open(input_file) as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='|')
