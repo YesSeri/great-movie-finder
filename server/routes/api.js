@@ -18,8 +18,16 @@ router.get("/movies", async (req, res) => {
 	// const omdbData = omdbResponse.map((el) => el.data);
 
 	// const combinedArray = combineOmdbAPIAndDb(omdbData, data);
-	const combinedArray = require('../utils/data') // Just doing this to avoid calling the remote API when developing client
-	res.json(combinedArray);
+	
+	function fakeApiCall(){
+
+		const combinedArray = require('../utils/data') 
+		res.json(combinedArray);
+	}
+	setTimeout(fakeApiCall, 500)
+	
+	// Just doing this to avoid calling the remote API when developing client
+	// res.json(combinedArray);
 });
 
 function fetchOmdbResponse(data) {

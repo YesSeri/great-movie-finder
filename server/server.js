@@ -15,7 +15,7 @@ if (result.error) {
 }
 if (process.env.NODE_ENV === "production") app.use(expressLogger);
 
-const PORT = 8080 || process.env.PORT;
+const PORT = 5000 || process.env.PORT;
 
 app.use("/api", require("./routes/api"));
 app.use("*", require("./routes/index"));
