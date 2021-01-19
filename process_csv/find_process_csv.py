@@ -4,12 +4,11 @@ import gzip
 import shutil
 import csv
 import sys
-import pandas as pd
 from pathlib import Path
+import pandas as pd
 
 
 def delete(dir_path):
-
     try:
         shutil.rmtree(dir_path)
         print(str(dir_path) + ' has been deleted.')
@@ -97,7 +96,7 @@ if __name__ == '__main__':
         download(el['zip_name'], el['url'])
         unzip(el)
 
-    merged_path = Path.cwd() / folder / 'merged.csv'
+    merged_path = folder / 'merged.csv'
     merge_data(basics['file_name'], ratings['file_name'], merged_path)
 
     processed_file = Path.cwd() / folder / 'processed_data.csv'

@@ -1,2 +1,17 @@
-docker build -t henrik852156/node-web-app .
- docker run -p 5000:8080 -d henrik852156/node-web-app
+# Docker Commands
+
+## Build
+
+This command builds 
+docker build -t name/node-web-app .
+
+
+## Run
+
+Use `-p` to map a host port to a container port. Use `-v` to bind between a folder in the container and a folder in the host.
+docker run -p 5000:8080 -v /home/henrikz/.docker/logs:/usr/src/app/utils/logs  henrik852156/node-web-app
+
+## Docs
+### Linux install
+https://docs.docker.com/engine/install/linux-postinstall/
+

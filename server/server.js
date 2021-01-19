@@ -13,7 +13,7 @@ const result = dotenv.config();
 if (result.error) {
 	throw result.error;
 }
-app.use(expressLogger);
+if (process.env.NODE_ENV === "production") app.use(expressLogger);
 
 const PORT = 8080 || process.env.PORT;
 
