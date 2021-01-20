@@ -1,24 +1,10 @@
-import Card from './components/card'
-import data from './data/data.json'
+import CardContainer from './containers/card'
 function App() {
   return (
-    <div className="App">
-
-      <Card.Container>
-        {data.map(item => (
-          <Card key={item.imdbID}>
-            <Card.Title>
-              {item.title}
-            </Card.Title>
-            <Card.Image src={item.poster} alt={item.title} />
-            {/* <Card.Plot>
-              {item.plot}
-            </Card.Plot> */}
-          </Card>
-        ))}
-      </Card.Container>
-
-    </div>
+    <>
+      <CardContainer />
+      <img style={{width:"500px"}}src='./watching-movie.jpg' alt="pic"></img>
+    </>
   );
 }
 

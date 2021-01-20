@@ -18,3 +18,7 @@ Card.Image = function cardImage({ src, alt, ...restProps }) {
 Card.Container = function cardContainer({ children, ...restProps }) {
   return <Container>{children}</Container>
 }
+
+Card.Plot = function cardContainer({ children, ...restProps }) {
+  return <Container>{children}</Container>
+}
