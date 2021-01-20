@@ -1,39 +1,39 @@
 [
   {
-    "Title": "30 Years and 15 Minutes",
-    "Year": "2020",
-    "Genre": "Documentary, Animation",
-    "Director": "Stefan Mandachi",
-    "Plot": "Romania is on the last place in Europe in terms of highway kilometers, but on the first place in the number of deaths in road accidents. Entrepreneur Stefan Mandachi builds 1 meter of highway on his private property.",
-    "Language": "Romanian, English",
-    "Poster": "https://m.media-amazon.com/images/M/MV5BOTdmODU2ZDQtMDU2MC00ZDkwLTljZjgtY2M3YzZmZWRmMTFjXkEyXkFqcGdeQXVyMTI3NDkxNzM@._V1_SX300.jpg",
+    "title": "30 Years and 15 Minutes",
+    "year": "2020",
+    "genre": "Documentary, Animation",
+    "director": "Stefan Mandachi",
+    "plot": "Romania is on the last place in Europe in terms of highway kilometers, but on the first place in the number of deaths in road accidents. Entrepreneur Stefan Mandachi builds 1 meter of highway on his private property.",
+    "language": "Romanian, English",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTdmODU2ZDQtMDU2MC00ZDkwLTljZjgtY2M3YzZmZWRmMTFjXkEyXkFqcGdeQXVyMTI3NDkxNzM@._V1_SX300.jpg",
     "imdbID": "tt12865416",
-    "averageRating": 9.4,
-    "numVotes": 1923
+    "rating": 9.4,
+    "votes": 1923
   },
   {
-    "Title": "Jibon Thekey Neya",
-    "Year": "1970",
-    "Genre": "Drama, Family, War",
-    "Director": "Zahir Raihan",
-    "Plot": "A political satire of Bangladesh under the rule of Pakistan metaphorically, where an autocratic woman in one family symbolizes the political dictatorship of Ayub Khan in East Pakistan.",
-    "Language": "Bengali",
-    "Poster": "https://ia.media-imdb.com/images/M/MV5BNTQ4YjUzMWItZjkwYi00NmFkLTg4YTYtYTc0Y2IxZGE0ZDJiXkEyXkFqcGdeQXVyNDI3NjcxMDA@._V1_SX300.jpg",
+    "title": "Jibon Thekey Neya",
+    "year": "1970",
+    "genre": "Drama, Family, War",
+    "director": "Zahir Raihan",
+    "plot": "A political satire of Bangladesh under the rule of Pakistan metaphorically, where an autocratic woman in one family symbolizes the political dictatorship of Ayub Khan in East Pakistan.",
+    "language": "Bengali",
+    "poster": "https://ia.media-imdb.com/images/M/MV5BNTQ4YjUzMWItZjkwYi00NmFkLTg4YTYtYTc0Y2IxZGE0ZDJiXkEyXkFqcGdeQXVyNDI3NjcxMDA@._V1_SX300.jpg",
     "imdbID": "tt0989831",
-    "averageRating": 9.3,
-    "numVotes": 1846
+    "rating": 9.3,
+    "votes": 1846
   },
   {
-    "Title": "The Shawshank Redemption",
-    "Year": "1994",
-    "Released": "14 Oct 1994",
-    "Genre": "Drama",
-    "Director": "Frank Darabont",
-    "Plot": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-    "Language": "English",
-    "Poster": "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
+    "title": "The Shawshank Redemption",
+    "year": "1994",
+    "released": "14 Oct 1994",
+    "genre": "Drama",
+    "director": "Frank Darabont",
+    "plot": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+    "language": "English",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
     "imdbID": "tt0111161",
-    "averageRating": 9.3,
-    "numVotes": 2333702
+    "rating": 9.3,
+    "votes": 2333702
   }
 ]
