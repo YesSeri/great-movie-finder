@@ -1,9 +1,8 @@
-import CardContainer from './containers/card'
+import CarouselContainer from './containers/carousel'
 function App() {
   return (
     <>
-      <CardContainer />
-      <img style={{width:"500px"}}src='./watching-movie.jpg' alt="pic"></img>
+      <CarouselContainer />
     </>
   );
 }

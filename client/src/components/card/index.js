@@ -10,15 +10,15 @@ export default function Card({ children, ...restProps }) {
 }
 
 Card.Title = function CardTitle({ children, ...restProps }) {
-  return (<Title>{children}</Title>)
+  return (<Title {...restProps}>{children}</Title>)
 }
-Card.Image = function cardImage({ src, alt, ...restProps }) {
+Card.Image = function CardImage({ src, alt, ...restProps }) {
   return <Image src={src} alt={alt} {...restProps} />
 }
-Card.Container = function cardContainer({ children, ...restProps }) {
-  return <Container>{children}</Container>
+Card.Container = function CardContainer({ children, ...restProps }) {
+  return <Container {...restProps}>{children}</Container>
 }
 
-Card.Plot = function cardContainer({ children, ...restProps }) {
-  return <Container>{children}</Container>
+Card.Plot = function CardContainer({ children, ...restProps }) {
+  return <Container {...restProps}>{children}</Container>
 }

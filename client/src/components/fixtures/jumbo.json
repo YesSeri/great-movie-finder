@@ -3,15 +3,15 @@
     "id": 1,
     "title": "Find movies you enjoy.",
     "subTitle": "Finding new interesting movies have never been easier. Here you can find highly ranked, lesser known movies",
-    "image": "",
+    "image": "/jumbo/cinema.jpg",
     "alt": "picture",
     "direction": "row"
   },
   {
     "id": 2,
-    "title": "Search easily here on the site. ",
+    "title": "Search fast and smooth. ",
     "subTitle": "Save the movies to your profile to make it easier to remember.",
-    "image": "",
+    "image": "/jumbo/camera.jpg",
     "alt": "picture",
     "direction": "row-reverse"
   },
@@ -19,7 +19,7 @@
     "id": 3,
     "title": "Find links to trailers. ",
     "subTitle": "Watch a sneak peek of the movie here to make sure that it is something you like.",
-    "image": "",
+    "image": "/jumbo/dancer.jpg",
     "alt": "Picture",
     "direction": "row"
   }
