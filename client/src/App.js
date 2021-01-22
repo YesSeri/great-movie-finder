@@ -1,4 +1,4 @@
-import CarouselContainer from './containers/carousel'
+import CarouselContainer from './containers/slider'
 import JumbotronContainer from './containers/jumbotron'
 function App() {
   return (
