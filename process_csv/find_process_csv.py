@@ -1,4 +1,5 @@
-"This script downloads info about all IMDB movies and filters out all the bad ones"
+"""This script downloads info about all IMDB movies 
+and filters out all the bad ones"""
 import os
 import urllib.request
 import gzip
@@ -10,7 +11,7 @@ import pandas as pd
 
 
 def delete(dir_path):
-    "Deletes folder at specified path"
+    """Deletes folder at specified path"""
     try:
         shutil.rmtree(dir_path)
         print(str(dir_path) + ' has been deleted.')
@@ -19,28 +20,31 @@ def delete(dir_path):
 
 
 def create_dir(dir_path):
-    "Creates a dir at specified path, if it doesn't exist already"
+    """Creates a dir at specified path, 
+    if it doesn't exist already"""
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
     print(str(dir_path) + ' has been created.')
 
 
 def download(output_path, url):
-    "Downloads file from URL and saves at output_path"
+    """Downloads file from URL 
+    and saves at output_path"""
     print('Beginning file download with urllib2: ' + str(output_path))
     urllib.request.urlretrieve(url, output_path)
     print(str(url) + ' has been downloaded.')
 
 
 def unzip(data):
-    "Recieves a dictonary containing name of zip file and name of output file name and unzips it"
+    """Recieves a dictonary containing name of zip file 
+    and name of output file name and unzips it"""
     with gzip.open(data['zip_name'], 'r') as f_in, open(data['file_name'], 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)
         print(f_out.name + 'has been unzipped, from ' + f_in.name)
 
 
 def merge_data(path1, path2, output_path):
-    "Merges the two TSV files"
+    """Merges the two TSV files"""
 
     file1 = pd.read_csv(path1, sep='\t', low_memory=False)
     file2 = pd.read_csv(path2, sep='\t', low_memory=False)
@@ -53,7 +57,8 @@ def merge_data(path1, path2, output_path):
 
 
 def filter_data(output_file, input_file):
-    "Filters the movies, keeping only the good ones, and saving them in a new file."
+    """Filters the movies, keeping only the good ones, 
+    and saving them in a new file."""
     def is_movie(row):
         if row[3] == 'movie':
             return True
