@@ -8,9 +8,12 @@ export const Inner = styled.div`
 `
 export const Actions = styled.div`
 `
-export const NextButton = styled.button`
+
+export const Button = styled.div`
 `
-export const PrevButton = styled.button`
+export const NextButton = styled(Button)`
+`
+export const PrevButton = styled(Button)`
 `
 export const Image = styled.img`
 `
