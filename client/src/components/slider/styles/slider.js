@@ -2,7 +2,19 @@ import styled from 'styled-components/macro';
 import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from 'react-icons/fa'
 import { css } from 'styled-components'
 
+export const Container = styled.div`
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  max-width: 800px;
+`
 
+export const OuterContainer = styled.div`
+  display:flex;
+  justify-content:center;
+  align-items:center;
+`
 const sharedButtonStyle = css`
   position: absolute;
   top: 50%;
@@ -11,32 +23,27 @@ const sharedButtonStyle = css`
   z-index: 10;
   cursor:pointer;
   user-select:none;
+  stroke: #333;
+  stroke-width: 20;
   @media (max-width: 600px){
-  font-size: 2em;
+    font-size: 2em;
   }
-`
-
-export const Container = styled.div`
-  position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  max-width: 800px;
-
-`
-
-export const OuterContainer = styled.div`
-  display:flex;
-  justify-content:center;
-  align-items:center;
 `
 export const PrevButton = styled(FaArrowAltCircleLeft)`
   ${sharedButtonStyle}
-  left: 32px;
+  left: -72px;
+  stroke: #333;
+  stroke-width: 20;
+  @media (max-width: 600px){
+    left: 12px;
+  }
 `
 export const NextButton = styled(FaArrowAltCircleRight)`
   ${sharedButtonStyle}
-  right:32px;
+  right: -72px;
+  @media (max-width: 600px){
+    right: 12px;
+  }
 `
 export const Inner = styled.div`
   &.active{
