@@ -2,8 +2,6 @@
 
 On IMDB:s top 250 list of movies they have a very strict criteria for which movies gets to be there.  They don't disclose exactly what the rules are but it effectively means that there are no foreign films, and no documentaries on the list. I find this a bit sad. 
 
-
-
 My goal here is to create a site where you can browse and see both famous and lesser famous great films and documentaries, and find something new to watch. 
 
 Features:

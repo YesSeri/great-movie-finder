@@ -1,9 +1,9 @@
-import CarouselContainer from './containers/carousel'
+import SliderContainer from './containers/slider'
 import JumbotronContainer from './containers/jumbotron'
 function App() {
   return (
     <>
-      <CarouselContainer />
+      <SliderContainer />
     </>
   );
 }
