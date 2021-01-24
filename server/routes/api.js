@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
 	res.json({ api: "Welcome to the API" });
 });
 router.get("/movies", async (req, res) => {
-	// const response = await fetchDatabase("movies");
+	// const response = await fetchDatabase();
 	// const { data, pagination } = response;
 
 	// const omdbResponse = await fetchOmdbResponse(data);
@@ -18,18 +18,48 @@ router.get("/movies", async (req, res) => {
 	// const omdbData = omdbResponse.map((el) => el.data);
 
 	// const combinedArray = combineOmdbAPIAndDb(omdbData, data);
-	
-	function fakeApiCall(){
 
-		const combinedArray = require('../utils/data') 
+	function fakeApiCall() {
+
+		const combinedArray = require('../utils/data')
 		res.json(combinedArray);
 	}
 	setTimeout(fakeApiCall, 500)
-	
+
 	// Just doing this to avoid calling the remote API when developing client
 	// res.json(combinedArray);
 });
 
+// If you want more than one page (10 results) of movies you can choose this one. Starts with highest rated movie.
+// I tested what is fastest between looping through the pages and making a DB request for each that is awaited or using Promise.all. 
+// For over ca. 5 pages (50 results) and more it is always faster with Promise.all
+router.get("/movies/paginated/:pages", async (req, res) => {
+	const { pages } = req.params
+	// This is response from first page
+	const response = await fetchDatabase();
+	const { data, pagination } = response;
+	const { lastPage } = pagination
+	const promiseArray = getPromiseArray(pages > lastPage ? lastPage : pages)
+	const responseArray = await Promise.all(promiseArray);
+	let otherPages = [];
+
+	// All responses from 2nd page and onwards are added to an array.
+	responseArray.forEach((el) => {
+		el.data.forEach(item => {
+			extraPages.push(item)
+		})
+	})
+	const allResults = [data, ...extraPages]
+	res.json(allResults)
+})
+
+function getPromiseArray(pages) {
+	let promiseArray = []
+	for (let i = 2; i <= pages; i++) {
+		promiseArray.push(fetchDatabase(i))
+	}
+	return promiseArray;
+}
 function fetchOmdbResponse(data) {
 	return Promise.all(
 		data.map((el) => {
@@ -61,11 +91,11 @@ function fetchOmdbData(imdbCode) {
 	const omdbData = axios(omdbUrl + query);
 	return omdbData;
 }
-function fetchDatabase(databaseName) {
+function fetchDatabase(currentPage = 1) {
 	try {
-		return knex(databaseName)
+		return knex('movies')
 			.orderBy([{ column: "averageRating", order: "desc" }])
-			.paginate({ perPage: 2 });
+			.paginate({ perPage: 10, currentPage });
 	} catch (error) {
 		logger.info(error);
 	}

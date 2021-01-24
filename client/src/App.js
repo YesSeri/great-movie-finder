@@ -1,10 +1,17 @@
-import SliderContainer from './containers/slider'
-import JumbotronContainer from './containers/jumbotron'
+import Home from './pages/home'
+import Movie from './pages/movie'
+import { BrowserRouter, BrowserRouter as Router, Route } from 'react-router-dom'
+import * as ROUTES from './constants/routes'
 function App() {
   return (
-    <>
-      <SliderContainer />
-    </>
+    <Router>
+      <Route exact path={ROUTES.HOME}>
+        <Home />
+      </Route>
+      <Route exact path={ROUTES.MOVIE}>
+        <Movie />
+      </Route>
+    </Router>
   );
 }
 

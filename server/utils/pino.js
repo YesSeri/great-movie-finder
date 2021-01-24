@@ -11,6 +11,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 const expressLogger = expressPino({ logger });
 
+// Production logger outputs to /utils/logs, dev logger outputs to console.
 function createProductionLogger() {
 	const time = getDateString();
 	const saveLocation = path.join(__dirname, "logs", `log-${time}`);
@@ -27,10 +28,13 @@ function createProductionLogger() {
 	}
 	return logger;
 }
+
 function createDevLogger() {
 	return pino({ prettyPrint: true, level: process.env.LOG_LEVEL || "info" });
 }
-function getDateString() {
+
+// Used for naming the log file
+function getDateString() { 
 	const date = new Date();
 	const year = date.getFullYear();
 	const month = `${date.getMonth() + 1}`.padStart(2, "0");

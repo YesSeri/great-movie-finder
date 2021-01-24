@@ -1,19 +1,21 @@
 import { Slider } from "../components"
+import { useHistory } from "react-router-dom";
 import data from '../data/data.json'
 
 export default function SliderContainer() {
+  let history = useHistory();
+  function handleClick(id) {
+    history.push(`/movie/${id}`);
+  }
   return (
     <Slider>
       {data.map((el) => (
-        <Slider.Image onClick={handleClick} key={el.imdbID} src={el.poster} subtitle={el.title} />
+        <Slider.Image onClick={() => handleClick(el.imdbID)} key={el.imdbID} src={el.poster} subtitle={el.title} />
       ))}
     </Slider>
   );
 }
 
-function handleClick(){
-  console.log('go to movie')
-}
 // Don't forget to include the css in your page
 
 // Using webpack or parcel with a style loader

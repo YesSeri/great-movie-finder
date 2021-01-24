@@ -8,7 +8,7 @@ export const Container = styled.div`
 export const Item = styled.div`
 `
 export const Inner = styled.div`
-  max-width: 500px;
+  max-width: 350px;
 `
 export const Image = styled.img`
   user-select: none;
