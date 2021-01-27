@@ -13,7 +13,7 @@ router.get("/movies", async (req, res) => {
 	const { data, pagination } = response;
 	console.log(data);
 
-	// const omdbResponse = await fetchOmdbResponse(data);
+	const omdbResponse = await fetchTMDBResponse(data);
 
 	// const omdbData = omdbResponse.map((el) => el.data);
 
@@ -31,7 +31,7 @@ function fetchDatabase() {
 	}
 }
 
-const fetchTMDB =() => {
+const fetchTMDBResponse =() => {
 	return axios(TMDBUrl);
 }
 
