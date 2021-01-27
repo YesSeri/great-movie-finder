@@ -23,9 +23,17 @@ CREATE TABLE movies
 
 ## Importing CSV to DB
 
+### Windows
 LOAD DATA LOCAL INFILE 
-	'C:/Programming/omdb-best-series/csvHandling/processed_data.csv'
-	'/home/henrikz/projects/langs/react/great-movie-finder/process_csv/processed_data.csv'
+	'C:/Programming/omdb-best-series/process_csv/data/processed_data.csv'
+ 	INTO TABLE movies 
+	FIELDS TERMINATED BY ',' 
+	LINES TERMINATED BY '\n' 
+	IGNORE 1 ROWS (tconst, averageRating, numVotes)
+	SET created  = CURRENT_TIMESTAMP();
+### Linux
+LOAD DATA LOCAL INFILE 
+	'/home/henrikz/NAME_OF_PATH/great-movie-finder/process_csv/processed_data.csv'
  	INTO TABLE movies 
 	FIELDS TERMINATED BY ',' 
 	LINES TERMINATED BY '\n' 
