@@ -15,7 +15,9 @@ const TMDBUrl = `https://api.themoviedb.org/3/movie/`;
 // This one gets top movies
 router.get("/movies/top", async (req, res) => {
 	const response = await fetchDatabase();
-	const { data } = response;
+	let { data } = response;
+
+	data = data.slice(38,39);
 	const tmdbData = await fetchTMDBData(data);
 	let movieArray = []
 	// The movie class is used to make sure that only relevant data is kept. 
@@ -23,26 +25,30 @@ router.get("/movies/top", async (req, res) => {
 		const movie = new Movie(tmdbData[i], data[i])
 		movieArray.push(movie);
 	}
-	res.json(movieArray);
+	res.json(data);
 	function fetchDatabase() {
 		try {
 			return knex('movies')
 				.orderBy([{ column: "averageRating", order: "desc" }])
-				// next page is page 4.
-				.paginate({ perPage: 100, currentPage:4 })
+				// next page is page 4. per page 100
+				.paginate({ perPage: 50, currentPage: 7 })
 		} catch (error) {
 			logger.error(error);
 		}
 	}
 });
 // Give array with t const as value
+// When trying to download all to json from TMDB Muhammad Ali documentary causes bug. Id tt6328046
 const fetchTMDBData = async (data) => {
-	const tmdbResponse = await Promise.all(getTMDBPromises(data));
-	const tmdbData = tmdbResponse.map(el => {
-		return el.data
-	})
-	return tmdbData
-
+	try {
+		const tmdbResponse = await Promise.all(getTMDBPromises(data));
+		const tmdbData = tmdbResponse.map(el => {
+			return el.data
+		})
+		return tmdbData
+	} catch (error) {
+		console.error(error)
+	}
 }
 function getTMDBPromises(data) {
 	return data.map((el) => {
