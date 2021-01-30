@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === "production") app.use(expressLogger);
 const PORT = 5000 || process.env.PORT;
 
 // app.use("/api", require("./routes/api"));
-app.use("/api2", require("./routes/api2"));
+app.use("/api", require("./routes/api"));
 app.use("/", require("./routes/index"));
 
 // if (process.env.NODE_ENV === "production") {
