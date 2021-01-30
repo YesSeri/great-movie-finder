@@ -1,6 +1,6 @@
 const express = require("express");
-const axios = require("axios");
 const router = express.Router();
+const axios = require("axios");
 const knex = require("../utils/knex");
 const { logger } = require("../utils/pino");
 const Movie = require("../utils/movieClass")
@@ -28,7 +28,8 @@ router.get("/movies/top", async (req, res) => {
 		try {
 			return knex('movies')
 				.orderBy([{ column: "averageRating", order: "desc" }])
-				.paginate({ perPage: 5 })
+				// next page is page 4.
+				.paginate({ perPage: 100, currentPage:4 })
 		} catch (error) {
 			logger.error(error);
 		}
@@ -74,8 +75,5 @@ router.get("/movies/random", async (req, res) => {
 		return Math.floor(Math.random() * Math.floor(max));
 	}
 });
-
-
-
 
 module.exports = router;
