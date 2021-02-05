@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "knex": "^0.21.17",
     "mysql2": "^2.2.5"
