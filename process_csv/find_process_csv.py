@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 folder = Path.cwd() / 'data'
+merged_path = folder / 'merged.csv'
 fieldnames= ['averageRating',
              'genres',
              'isAdult',
@@ -102,11 +103,13 @@ def setup_teardown(func):
             os.remove(el['file_name'])
             os.remove(el['zip_name'])
 
+        os.remove(merged_path)
+
+
     return inner1
 
 @setup_teardown
 def run(*args, **kwargs):
-    merged_path = folder / 'merged.csv'
     merge_data(basics['file_name'], ratings['file_name'], merged_path)
     processed_file = Path.cwd() / folder / 'processed_data.csv'
     filter_data(processed_file, merged_path)
