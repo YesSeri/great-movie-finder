@@ -7,13 +7,14 @@ cursor = conn.cursor()
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS movies (
-    tconst TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tconst TEXT,
     primaryTitle TEXT,
     originalTitle TEXT,
     isAdult INTEGER,
     startYear INTEGER,
     runtimeMinutes INTEGER,
-    averageRating INTEGER,  -- Changed to INTEGER
+    averageRating INTEGER,
     numVotes INTEGER
 )''')
 
@@ -25,11 +26,11 @@ CREATE TABLE IF NOT EXISTS genres (
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS movie_genres (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     movie_tconst TEXT,
     genre_id INTEGER,
     FOREIGN KEY (movie_tconst) REFERENCES movies(tconst),
-    FOREIGN KEY (genre_id) REFERENCES genres(id),
-    PRIMARY KEY (movie_tconst, genre_id)
+    FOREIGN KEY (genre_id) REFERENCES genres(id)
 )''')
 
 with open('data/processed_data.csv', newline='', encoding='utf-8') as csvfile:
