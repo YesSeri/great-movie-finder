@@ -2,7 +2,7 @@ import os
 import urllib.request
 import gzip
 import shutil
-from config import folder, ratings, basics
+from config import data_folder, ratings_dict, basics_dict, name_dict
 
 def create_dir(dir_path):
     """Creates a directory if it doesn't already exist."""
@@ -20,9 +20,9 @@ def download_and_unzip(data):
 
 def setup_files():
     """Sets up the necessary files for the main processing script."""
-    shutil.rmtree(folder, ignore_errors=True)
-    create_dir(folder)
-    for data in [ratings, basics]:
+    shutil.rmtree(data_folder, ignore_errors=True)
+    create_dir(data_folder)
+    for data in [ratings_dict, basics_dict, name_dict]:
         download_and_unzip(data)
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
-
+from tqdm import tqdm
 import sqlite3
 import csv
+from config import name_dict 
 
 conn = sqlite3.connect('movies.db')
 cursor = conn.cursor()
@@ -10,8 +11,8 @@ cursor.execute('PRAGMA journal_mode = MEMORY')
 
 
 
-filename = 'tsv/name.basics.tsv'
 tsv_len = 1
+filename = name_dict['file_name']
 with open(filename) as f:
     for i, _ in enumerate(f):
         tsv_len = i + 1
@@ -37,6 +38,8 @@ CREATE TABLE IF NOT EXISTS movie_actors (
 
 
 
+start_time = 0
+curr_time =  0
 batch_size = 10000
 actor_data = []
 movie_actor_data = []
@@ -44,19 +47,18 @@ with open(filename, newline='', encoding='utf-8') as tsvfile:
     reader = csv.DictReader(tsvfile, delimiter='\t')
     
     for (i, row) in enumerate(reader):
-        if i % batch_size == 0:
-            print(i, i/tsv_len)
+        for i, row in tqdm(enumerate(reader), total=sum(1 for _ in open(filename))):
+            if i % batch_size == 0:
+                cursor.executemany('''
+                INSERT OR IGNORE INTO actors (nconst, primaryName, birthYear, deathYear, primaryProfession)
+                VALUES (?, ?, ?, ?, ?)''', actor_data)
 
-            cursor.executemany('''
-            INSERT OR IGNORE INTO actors (nconst, primaryName, birthYear, deathYear, primaryProfession)
-            VALUES (?, ?, ?, ?, ?)''', actor_data)
+                cursor.executemany('''
+                INSERT OR IGNORE INTO movie_actors (movie_tconst, actor_nconst)
+                VALUES (?, ?)''', movie_actor_data)
 
-            cursor.executemany('''
-            INSERT OR IGNORE INTO movie_actors (movie_tconst, actor_nconst)
-            VALUES (?, ?)''', movie_actor_data)
-
-            actor_data = []
-            movie_actor_data = []
+                actor_data = []
+                movie_actor_data = []
 
         actor_data.append((row['nconst'], row['primaryName'], row['birthYear'], row['deathYear'], row['primaryProfession']))
 
@@ -72,10 +74,12 @@ with open(filename, newline='', encoding='utf-8') as tsvfile:
     INSERT OR IGNORE INTO movie_actors (movie_tconst, actor_nconst)
     VALUES (?, ?)''', movie_actor_data)
 
+print('100%')
 cursor.execute('CREATE INDEX IF NOT EXISTS idx_movie_actors_movie ON movie_actors(movie_tconst)')
 cursor.execute('CREATE INDEX IF NOT EXISTS idx_movie_actors_actor ON movie_actors(actor_nconst)')
 
 
 conn.commit()
 conn.close()
+
 
