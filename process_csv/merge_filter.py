@@ -32,8 +32,9 @@ if __name__ == '__main__':
         lambda row: row['titleType'] == 'movie'
     ]
     ratings_filters = [
-        lambda row: float(row['averageRating']) > 8.2,
-        lambda row: int(row['numVotes']) > 1300
+        lambda row: float(row['averageRating']) > 7.9,
+        lambda row: int(row['numVotes']) > 7000,
+        lambda row: int(row['numVotes']) < 110000,
     ]
 
     filter_data(basics_dict['file_name'], basics_filtered_path, basics_filters)

@@ -1,4 +1,3 @@
-from tqdm import tqdm
 import sqlite3
 import csv
 from config import name_dict 
@@ -38,8 +37,6 @@ CREATE TABLE IF NOT EXISTS movie_actors (
 
 
 
-start_time = 0
-curr_time =  0
 batch_size = 10000
 actor_data = []
 movie_actor_data = []
@@ -47,18 +44,20 @@ with open(filename, newline='', encoding='utf-8') as tsvfile:
     reader = csv.DictReader(tsvfile, delimiter='\t')
     
     for (i, row) in enumerate(reader):
-        for i, row in tqdm(enumerate(reader), total=sum(1 for _ in open(filename))):
-            if i % batch_size == 0:
-                cursor.executemany('''
-                INSERT OR IGNORE INTO actors (nconst, primaryName, birthYear, deathYear, primaryProfession)
-                VALUES (?, ?, ?, ?, ?)''', actor_data)
 
-                cursor.executemany('''
-                INSERT OR IGNORE INTO movie_actors (movie_tconst, actor_nconst)
-                VALUES (?, ?)''', movie_actor_data)
+        if i % batch_size == 0:
+            print(f'{round(i/tsv_len *100,2)}%')
 
-                actor_data = []
-                movie_actor_data = []
+            cursor.executemany('''
+            INSERT OR IGNORE INTO actors (nconst, primaryName, birthYear, deathYear, primaryProfession)
+            VALUES (?, ?, ?, ?, ?)''', actor_data)
+
+            cursor.executemany('''
+            INSERT OR IGNORE INTO movie_actors (movie_tconst, actor_nconst)
+            VALUES (?, ?)''', movie_actor_data)
+
+            actor_data = []
+            movie_actor_data = []
 
         actor_data.append((row['nconst'], row['primaryName'], row['birthYear'], row['deathYear'], row['primaryProfession']))
 

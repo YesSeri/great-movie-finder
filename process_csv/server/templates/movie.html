@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %} Lesser-Known Movies {% endblock %}
+{% block head %}
+<style>
+	.movie-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, 300px);
+		grid-gap: 1rem;
+		justify-content: center;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>{{primary_title}}</h2>
+<ul>
+	<li>
+		Runtime: {{runtime_minutes}} minutes
+	</li>
+	<li>
+		IMDB Rating: {{average_rating}}
+	</li>
+
+	<li>
+		Languages: {{languages}}
+	</li>
+</ul>
+
+{% if let Some(poster_url) = poster_url %}
+<img src="{{poster_url}}" alt="{{primary_title}} poster" width="200">
+{% endif %}
+{% endblock %}

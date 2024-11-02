@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %} Lesser-Known Movies {% endblock %}
+{% block head %}
+<style>
+	.movie-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, 300px);
+		grid-gap: 1rem;
+	}
+
+	.movie-item {
+		border: 1px solid #ccc;
+		padding: 8px;
+		cursor: pointer;
+	}
+
+	.movie-item__img {
+		display: flex;
+		justify-content: center;
+	}
+
+	h2 {
+		min-height: 64px;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>The List</h2>
+<div class="movie-grid">
+	{% for movie in movies %}
+	<div onclick="window.location.href = '/movies/{{movie.tconst}}'" class="movie-item">
+		<h2>{{ movie.primary_title }} ({{ movie.start_year }})</h2>
+		<ul>
+			<li> {{ movie.runtime_minutes }} minutes </li>
+			<li>
+				{{ movie.average_rating }} / 100 rating
+			</li>
+			<li>
+				{{ movie.num_votes }} votes
+			</li>
+
+			<li>
+				<a href="/movies/{{ movie.tconst }}">More info</a>
+			</li>
+		</ul>
+		{% if let Some(poster_url) = movie.poster_url %}
+		<div class="movie-item__img">
+			<img src=" {{ poster_url }}" alt="{{ movie.primary_title }} poster" width="224">
+		</div>
+		{% endif %}
+	</div>
+	{% endfor %}
+</div>
+{% endblock %}

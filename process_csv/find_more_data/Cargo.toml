@@ -1,0 +1,10 @@
+[package]
+name = "find_more_data"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+reqwest = { version = "0.12.9", features = ["blocking", "json"] }
+scraper = "0.21.0"
+rusqlite = { version = "0.32.0", features = ["bundled"] }
+serde = { version = "1.0.214", features = ["derive"] }
