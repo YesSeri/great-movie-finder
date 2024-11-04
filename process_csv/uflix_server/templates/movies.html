@@ -5,32 +5,28 @@
 	.movie-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, 300px);
-		grid-gap: 1rem;
+		grid-gap: 8px;
+		grid-auto-rows: 1fr;
 	}
 
-	.movie-item {
-		border: 1px solid #ccc;
-		padding: 8px;
+	.card {
 		cursor: pointer;
+		border: 1px solid var(--border);
+		padding: 8px;
 	}
 
-	.movie-item__img {
-		display: flex;
-		justify-content: center;
-	}
-
-	h2 {
-		min-height: 64px;
+	img {
+		border-radius: 16px;
 	}
 </style>
 {% endblock %}
 
 {% block content %}
-<h2>The List</h2>
 <div class="movie-grid">
 	{% for movie in movies %}
-	<div onclick="window.location.href = '/movies/{{movie.tconst}}'" class="movie-item">
-		<h2>{{ movie.primary_title }} ({{ movie.start_year }})</h2>
+	<div onclick="window.location.href = '/movies/{{movie.tconst}}'" class="card">
+		<h4>{{ movie.primary_title }} ({{ movie.start_year }})</h4>
+		<hr>
 		<ul>
 			<li> {{ movie.runtime_minutes }} minutes </li>
 			<li>
@@ -39,15 +35,9 @@
 			<li>
 				{{ movie.num_votes }} votes
 			</li>
-
-			<li>
-				<a href="/movies/{{ movie.tconst }}">More info</a>
-			</li>
 		</ul>
 		{% if let Some(poster_url) = movie.poster_url %}
-		<div class="movie-item__img">
-			<img src=" {{ poster_url }}" alt="{{ movie.primary_title }} poster" width="224">
-		</div>
+		<img src=" {{ poster_url }}" alt="{{ movie.primary_title }} poster">
 		{% endif %}
 	</div>
 	{% endfor %}

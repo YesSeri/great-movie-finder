@@ -2,6 +2,7 @@ mod models;
 use askama_axum::Template;
 use std::{
     collections::HashMap,
+    net::SocketAddr,
     sync::{Arc, Mutex},
 };
 
@@ -13,6 +14,8 @@ use axum::{
     Router,
 };
 use models::{Movie, Pagination};
+use tower_http::services::fs::ServeDir;
+use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
@@ -30,20 +33,51 @@ async fn main() {
         conn: Arc::new(Mutex::new(conn)),
     });
     // build our application with some routes
+    let service = ServeDir::new("assets");
+    dbg!(&service);
     let app = Router::new()
         .route("/", get(get_all_movies))
         .route("/movies", get(get_all_movies))
         .route("/movies/:tconst", get(get_movie))
+        .nest_service("/assets", service)
         .with_state(state);
 
     // run it
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
         .unwrap();
-    tracing::debug!("listening on http://{}", listener.local_addr().unwrap());
-    axum::serve(listener, app).await.unwrap();
-}
 
+    axum::serve(listener, app.layer(TraceLayer::new_for_http()))
+        .await
+        .unwrap();
+    // tracing::debug!("listening on http://{}", listener.local_addr().unwrap());
+    // axum::serve(listener, app).await.unwrap();
+}
+// async fn main() {
+//     tracing_subscriber::registry()
+//         .with(
+//             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+//                 format!("{}=debug,tower_http=debug", env!("CARGO_CRATE_NAME")).into()
+//             }),
+//         )
+//         .with(tracing_subscriber::fmt::layer())
+//         .init();
+//     serve(using_serve_dir(), 3001).await;
+// }
+
+// fn using_serve_dir() -> Router {
+//     // serve the file in the "assets" directory under `/assets`
+//     Router::new().nest_service("/assets", ServeDir::new("assets"))
+// }
+
+// async fn serve(app: Router, port: u16) {
+//     let addr = SocketAddr::from(([127, 0, 0, 1], port));
+//     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+//     tracing::debug!("listening on {}", listener.local_addr().unwrap());
+//     axum::serve(listener, app.layer(TraceLayer::new_for_http()))
+//         .await
+//         .unwrap();
+// }
 #[derive(Template)]
 #[template(path = "movies.html")]
 pub struct MoviesTemplate {

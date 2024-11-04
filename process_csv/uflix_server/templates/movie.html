@@ -20,13 +20,12 @@
 	<li>
 		IMDB Rating: {{average_rating}}
 	</li>
-
 	<li>
 		Languages: {{languages}}
 	</li>
 </ul>
-
 {% if let Some(poster_url) = poster_url %}
-<img src="{{poster_url}}" alt="{{primary_title}} poster" width="200">
+<img src="{{poster_url}}" alt="{{primary_title}} poster">
 {% endif %}
+
 {% endblock %}
