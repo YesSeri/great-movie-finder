@@ -28,12 +28,11 @@
 		<h4>{{ movie.primary_title }} ({{ movie.start_year }})</h4>
 		<hr>
 		<ul>
-			<li> {{ movie.runtime_minutes }} minutes </li>
 			<li>
-				{{ movie.average_rating }} / 100 rating
+				IMDB Score {{ "{}.{}"|format(movie.average_rating/10, movie.average_rating%10)}} / 10
 			</li>
 			<li>
-				{{ movie.num_votes }} votes
+				{{ "{}"|format(movie.num_votes/1000) }}k votes
 			</li>
 		</ul>
 		{% if let Some(poster_url) = movie.poster_url %}
