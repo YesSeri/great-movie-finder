@@ -10,7 +10,6 @@ filename = config.filtered_path
 with open(filename) as csvfile:
     reader = csv.DictReader(csvfile)
     
-    i = 0
     for row in reader:
 
         averageRating = round(float(row['averageRating']) * 10)
@@ -25,10 +24,6 @@ with open(filename) as csvfile:
             cursor.execute('INSERT OR IGNORE INTO genres (genre) VALUES (?)', (genre,))
             cursor.execute('INSERT INTO movies_genres (movie_tconst, genre_id) VALUES (?, (SELECT id FROM genres WHERE genre = ?))',
                            (row['tconst'], genre))
-
-        if i > 10:
-            break
-        i += 1
 
 conn.commit()
 conn.close()
