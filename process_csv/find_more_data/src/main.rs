@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     create_tables(&conn)?;
     let tconsts = get_all_movies_tconst(&conn);
     // create language table many to many
-    for tconst in tconsts.iter().skip(80).take(16) {
+    for tconst in tconsts.iter().skip(110).take(16) {
         let path = PathBuf::from(format!("{}/{}.html", HTML_FOLDER, tconst));
 
         if !path.exists() {

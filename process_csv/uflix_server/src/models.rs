@@ -42,6 +42,11 @@ JOIN languages l ON ml.language_id = l.id
 WHERE m.tconst = ?
 GROUP BY m.tconst;
 "#;
+const FILTER_LANGUAGES_QUERY: &str = r#"
+SELECT
+    l.name, l.id
+FROM languages l;
+"#;
 const FILTER_QUERY: &str = "
 SELECT
     m.tconst, m.primaryTitle, m.originalTitle,
@@ -53,6 +58,17 @@ WHERE l.id = ?
 GROUP BY m.tconst ORDER BY averageRating DESC
 LIMIT ? OFFSET ?;";
 
+const MOVIES_QUERY: &str = r#"
+SELECT
+    m.tconst, m.primaryTitle, m.originalTitle,
+    m.startYear, m.runtimeMinutes, m.averageRating,
+    m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
+FROM movies m JOIN movies_languages ml ON m.tconst = ml.movie_id
+JOIN languages l ON ml.language_id = l.id
+GROUP BY m.tconst
+ORDER BY averageRating DESC
+LIMIT ? OFFSET ?;
+"#;
 impl Movie {
     fn parse_movie(row: &Row) -> Result<Movie> {
         Ok(Movie {
@@ -96,17 +112,25 @@ impl Pagination {
     }
 }
 
+#[derive(Debug)]
+pub(super) struct Language {
+    pub(super) name: String,
+    pub(super) id: i32,
+}
+pub fn get_filter_languages(conn: &Connection) -> rusqlite::Result<Vec<Language>> {
+    let mut stmt = conn.prepare(FILTER_LANGUAGES_QUERY)?;
+    let language_iter = stmt.query_map([], |row|
+        Ok(Language {
+            name: row.get(0)?,
+            id: row.get(1)?,
+        }),
+    )?;
+    let languages = language_iter.filter_map(Result::ok).collect();
+    Ok(languages)
+}
+
 pub fn get_lesser_known_movies(conn: &Connection, pagination: &Pagination) -> Result<Vec<Movie>> {
-    let mut stmt = conn.prepare("SELECT 
-    m.tconst, m.primaryTitle, m.originalTitle,
-    m.startYear, m.runtimeMinutes, m.averageRating, 
-    m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
-    FROM movies m 
-    JOIN movies_languages ml ON m.tconst = ml.movie_id
-    JOIN languages l ON ml.language_id = l.id
-    GROUP BY m.tconst
-    ORDER BY averageRating DESC
-    LIMIT ? OFFSET ?;", )?;
+    let mut stmt = conn.prepare(MOVIES_QUERY)?;
     let limit = pagination.per_page;
     let offset = pagination.per_page * (pagination.page - 1);
     let movie_iter = stmt.query_map([limit, offset], |row| Movie::parse_movie(row))?;

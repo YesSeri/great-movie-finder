@@ -1,29 +1,28 @@
-use crate::models::Movie;
-use askama::Template;
-use axum::{
-    http::StatusCode,
-    response::{IntoResponse, Response},
-};
+use std::iter::Filter;
+use askama_axum::Template;
+use crate::models::{Language, Movie};
 
-#[derive(Template)]
+#[derive(Template, Debug)]
 #[template(path = "movies.html")]
 pub struct MoviesTemplate {
     pub movies: Vec<Movie>,
+    pub filter_languages: Vec<Language>,
 }
 
-pub struct HtmlTemplate<T: Template>(pub T);
+impl From<(Vec<Movie>, Vec<Language>)> for MoviesTemplate {
+    fn from((movies, filter_languages): (Vec<Movie>, Vec<Language>)) -> Self {
+        Self { movies, filter_languages }
+    }
+}
 
-impl<T: Template> IntoResponse for HtmlTemplate<T> {
-    fn into_response(self) -> Response {
-        match self.0.render() {
-            Ok(html) => Response::builder()
-                .header("Content-Type", "text/html")
-                .body(html.into())
-                .unwrap(),
-            Err(_) => Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body("Template rendering error".into())
-                .unwrap(),
-        }
+#[derive(Template, Debug)]
+#[template(path = "movie_grid.html")]
+pub struct FilteredMoviesTemplate {
+    pub movies: Vec<Movie>,
+}
+
+impl From<Vec<Movie>> for FilteredMoviesTemplate {
+    fn from(movies: Vec<Movie>) -> Self {
+        Self { movies }
     }
 }

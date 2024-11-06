@@ -1,0 +1,23 @@
+<form action="/filter_languages" method="get">
+	<fieldset>
+		<legend>
+			Languages
+		</legend>
+		<div class="filter_languages">
+			<div>
+				<input type="checkbox" id="checkbox-all" name="languages" value="-1" checked onclick="langAll(this)">
+                <label for="checkbox-all">All</label>
+			</div>
+			{% for lang in filter_languages %}
+			<div>
+				<input type="checkbox" name="languages" id="lang-{{lang.id}}" value="{{lang.id}}"
+					onclick="langOther(this)">
+				<label for="lang-{{lang.id}}">{{lang.name}}
+				</label>
+			</div>
+			{% endfor %}
+		</div>
+	</fieldset>
+	<button type="submit">Filter</button>
+</form>
+<script src="/assets/js/filter.js"></script>

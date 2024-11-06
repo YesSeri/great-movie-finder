@@ -1,4 +1,5 @@
 mod models;
+mod templates;
 
 use askama_axum::Template;
 use std::{
@@ -17,7 +18,8 @@ use models::{Movie, Pagination};
 use tower_http::services::fs::ServeDir;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use crate::models::get_lesser_known_movies_filtered;
+use crate::models::{get_filter_languages, get_lesser_known_movies_filtered};
+use crate::templates::{FilteredMoviesTemplate, MoviesTemplate};
 
 #[tokio::main]
 async fn main() {
@@ -37,6 +39,7 @@ async fn main() {
     let service = ServeDir::new("assets");
     let app = Router::new()
         .route("/", get(get_all_movies))
+        .route("/filter_form", get(get_filter_form))
         .route("/movies", get(get_all_movies))
         .route("/movies/:tconst", get(get_movie))
         .nest_service("/assets", service)
@@ -124,18 +127,6 @@ impl From<Movie> for MovieTemplate {
 }
 
 // }
-#[derive(Template, Debug)]
-#[template(path = "movies.html")]
-pub struct MoviesTemplate {
-    pub movies: Vec<Movie>,
-}
-
-impl From<Vec<Movie>> for MoviesTemplate {
-    fn from(movies: Vec<Movie>) -> Self {
-        Self { movies }
-    }
-}
-
 struct AppState {
     conn: Arc<Mutex<rusqlite::Connection>>,
 }
@@ -144,15 +135,16 @@ async fn get_all_movies(
     Query(params): Query<HashMap<String, String>>,
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let conn = state.conn.lock().unwrap();
+    let conn = &*state.conn.lock().unwrap();
     let page = params
         .get("page")
         .and_then(|page| page.parse().ok())
         .unwrap_or(1);
     let pagination = Pagination::new(page);
     let movies = models::get_lesser_known_movies(&conn, &pagination);
-    if let Ok(movies) = movies {
-        let template = MoviesTemplate::from(movies);
+    let filter_languages = get_filter_languages(conn);
+    if let (Ok(movies), Ok(filter_languages)) = (movies, filter_languages) {
+        let template = MoviesTemplate::from((movies, filter_languages));
         Ok(template)
     } else {
         tracing::info!("Failed to get movies. Returning 500.");
@@ -185,6 +177,7 @@ async fn get_filter_form(
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let conn = &*state.conn.lock().unwrap();
+    tracing::info!("{params:#?}");
     // let page = params
     //     .get("page")
     //     .and_then(|page| page.parse().ok())
@@ -193,7 +186,7 @@ async fn get_filter_form(
     let pagination = Pagination::new(page);
     let movies = get_lesser_known_movies_filtered(conn, &pagination, vec![-1]);
     if let Ok(movies) = movies {
-        Ok(MoviesTemplate::from(movies))
+        Ok(FilteredMoviesTemplate::from(movies))
     } else {
         Err(StatusCode::INTERNAL_SERVER_ERROR)
     }

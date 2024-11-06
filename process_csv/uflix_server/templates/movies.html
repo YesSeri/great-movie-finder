@@ -22,23 +22,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="movie-grid">
-	{% for movie in movies %}
-	<div onclick="window.location.href = '/movies/{{movie.tconst}}'" class="card">
-		<h4>{{ movie.primary_title }} ({{ movie.start_year }})</h4>
-		<hr>
-		<ul>
-			<li>
-				IMDB Score {{ "{}.{}"|format(movie.average_rating/10, movie.average_rating%10)}} / 10
-			</li>
-			<li>
-				{{ "{}"|format(movie.num_votes/1000) }}k votes
-			</li>
-		</ul>
-		{% if let Some(poster_url) = movie.poster_url %}
-		<img src=" {{ poster_url }}" alt="{{ movie.primary_title }} poster">
-		{% endif %}
-	</div>
-	{% endfor %}
-</div>
+{% include "filter.html" %}
+{% include "movie_grid.html" %}
+
 {% endblock %}

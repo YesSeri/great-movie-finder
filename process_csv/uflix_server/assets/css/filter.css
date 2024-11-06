@@ -1,0 +1,10 @@
+.filter_languages {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.filter_languages div {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
