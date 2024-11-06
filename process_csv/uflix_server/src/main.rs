@@ -1,4 +1,5 @@
 mod models;
+
 use askama_axum::Template;
 use std::{
     collections::HashMap,
@@ -16,6 +17,7 @@ use models::{Movie, Pagination};
 use tower_http::services::fs::ServeDir;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use crate::models::get_lesser_known_movies_filtered;
 
 #[tokio::main]
 async fn main() {
@@ -91,9 +93,22 @@ pub struct MovieTemplate {
     languages: String,
     genres: Vec<String>,
 }
+
 impl From<Movie> for MovieTemplate {
-    fn from(Movie{tconst, primary_title,start_year, num_votes, runtime_minutes, average_rating, poster_url, languages, genres, .. }: Movie) -> Self {
-            
+    fn from(
+        Movie {
+            tconst,
+            primary_title,
+            start_year,
+            num_votes,
+            runtime_minutes,
+            average_rating,
+            poster_url,
+            languages,
+            genres,
+            ..
+        }: Movie,
+    ) -> Self {
         Self {
             tconst,
             primary_title,
@@ -107,12 +122,14 @@ impl From<Movie> for MovieTemplate {
         }
     }
 }
+
 // }
 #[derive(Template, Debug)]
 #[template(path = "movies.html")]
 pub struct MoviesTemplate {
     pub movies: Vec<Movie>,
 }
+
 impl From<Vec<Movie>> for MoviesTemplate {
     fn from(movies: Vec<Movie>) -> Self {
         Self { movies }
@@ -160,5 +177,24 @@ async fn get_movie(
         tracing::info!("Failed to get a movie. Returning 500.");
         tracing::info!("Tconst: {:?}", tconst);
         Err(StatusCode::NOT_FOUND)
+    }
+}
+
+async fn get_filter_form(
+    Query(params): Query<Vec<(String, String)>>,
+    State(state): State<Arc<AppState>>,
+) -> Result<impl IntoResponse, StatusCode> {
+    let conn = &*state.conn.lock().unwrap();
+    // let page = params
+    //     .get("page")
+    //     .and_then(|page| page.parse().ok())
+    //     .unwrap_or(1);
+    let page = 1;
+    let pagination = Pagination::new(page);
+    let movies = get_lesser_known_movies_filtered(conn, &pagination, vec![-1]);
+    if let Ok(movies) = movies {
+        Ok(MoviesTemplate::from(movies))
+    } else {
+        Err(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
