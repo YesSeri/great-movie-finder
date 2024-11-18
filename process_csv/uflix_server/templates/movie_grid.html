@@ -1,5 +1,4 @@
-<h1>Here they are</h1>
-<div class="movie-grid">
+<div id="movie-grid">
 	{% for movie in movies %}
 	<div onclick="window.location.href = '/movies/{{movie.tconst}}'" class="card">
 		<h4>{{ movie.primary_title }} ({{ movie.start_year }})</h4>

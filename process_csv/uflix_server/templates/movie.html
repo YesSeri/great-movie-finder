@@ -1,28 +1,16 @@
 {% extends "base.html" %}
 {% block title %} Lesser-Known Movies {% endblock %}
 {% block head %}
-<style>
-.movie-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, 300px);
-	grid-gap: 1rem;
-	justify-content: center;
-}
-</style>
 {% endblock %}
 
 {% block content %}
 <h2>{{primary_title}}</h2>
-<p> Released in {{start_year}} this 
-{% if num_votes > 40000 -%} 	 slightly famous
-{% else if num_votes < 15000 -%} unknown
-{% else -%} 					 underground hit {% endif -%}
-movie is a great watch. 
-
-It is a 
-{% if genres.len() > 2 -%} 		 movie that combines the genres {{genres|join(", ")|lower }} and much more.
-{% else if genres.len() == 1 -%} {{genres[0]|lower}} movie.
-{% else -%} 					 movie unlike most others, a unique, rare pearl. {% endif -%}
+<p> Released in {{start_year}} this
+	{% if num_votes > 40000 -%} slightly famous
+	{% else if num_votes < 15000 -%} unknown {% else -%} underground hit {% endif -%} movie is a great watch. It is a {%
+		if genres.len()> 2 -%} movie that combines the genres {{genres|join(", ")|lower }} and much more.
+		{% else if genres.len() == 1 -%} {{genres[0]|lower}} movie.
+		{% else -%} movie unlike most others, a unique, rare pearl. {% endif -%}
 </p>
 <ul>
 	<li>
@@ -36,7 +24,9 @@ It is a
 		Languages: {{languages}}
 	</li>
 </ul>
-{% if let Some(poster_url) = poster_url %} <img src="{{poster_url}}" alt="{{primary_title}} poster"> {% endif %}
+{% if let Some(poster_url) = poster_url %}
+<img src="{{poster_url}}" alt="{{primary_title}} poster">
+{% endif %}
 <p> <a href="https://www.imdb.com/title/{{tconst}}">Other Info</a> </p>
 
 {% endblock %}
