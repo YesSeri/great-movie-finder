@@ -1,3 +1,4 @@
+use crate::models::queries::*;
 use askama::Template;
 use rusqlite::{Connection, Result, Row};
 use serde::{Deserialize, Serialize};
@@ -23,52 +24,6 @@ impl PartialEq for Movie {
     }
 }
 
-const GENRE_QUERY: &str = r#"
-SELECT
-g.genre
-FROM movies m
-JOIN movies_genres mg ON m.tconst = mg.movie_tconst
-JOIN genres g ON g.id = mg.genre_id
-WHERE m.tconst = ?;
-"#;
-const MOVIE_QUERY: &str = r#"
-SELECT
-m.tconst, m.primaryTitle, m.originalTitle,
-m.startYear, m.runtimeMinutes, m.averageRating,
-m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
-FROM movies m 
-JOIN movies_languages ml ON m.tconst = ml.movie_id
-JOIN languages l ON ml.language_id = l.id
-WHERE m.tconst = ?
-GROUP BY m.tconst;
-"#;
-const FILTER_LANGUAGES_QUERY: &str = r#"
-SELECT
-    l.name, l.id
-FROM languages l;
-"#;
-const FILTER_QUERY: &str = "
-SELECT
-    m.tconst, m.primaryTitle, m.originalTitle,
-    m.startYear, m.runtimeMinutes, m.averageRating, 
-    m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
-FROM movies m 
-JOIN movies_languages ml ON m.tconst = ml.movie_id JOIN languages l ON ml.language_id = l.id
-WHERE l.id = ?
-GROUP BY m.tconst ORDER BY averageRating DESC
-LIMIT ? OFFSET ?;";
-
-const MOVIES_QUERY: &str = r#"
-SELECT
-    m.tconst, m.primaryTitle, m.originalTitle,
-    m.startYear, m.runtimeMinutes, m.averageRating,
-    m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
-FROM movies m JOIN movies_languages ml ON m.tconst = ml.movie_id
-JOIN languages l ON ml.language_id = l.id
-GROUP BY m.tconst
-ORDER BY averageRating DESC
-LIMIT ? OFFSET ?;
-"#;
 impl Movie {
     fn parse_movie(row: &Row) -> Result<Movie> {
         Ok(Movie {
@@ -90,7 +45,7 @@ pub fn get_movie(conn: &Connection, tconst: &str) -> Result<Movie> {
     // Query for the main movie data
 
     let mut stmt = conn.prepare(MOVIE_QUERY)?;
-    let movie = stmt.query_row([tconst], |row| Movie::parse_movie(row))?;
+    let movie = stmt.query_row([tconst], Movie::parse_movie)?;
 
     let mut genre_stmt = conn.prepare(GENRE_QUERY)?;
     let genre_rows = genre_stmt.query_map([tconst], |row| row.get(0))?;
@@ -117,14 +72,22 @@ pub(super) struct Language {
     pub(super) name: String,
     pub(super) id: i32,
 }
-pub fn get_filter_languages(conn: &Connection) -> rusqlite::Result<Vec<Language>> {
+
+impl Language {
+    pub(super) fn new<S: Into<String>>(name: S, id: i32) -> Self {
+        Self {
+            name: name.into(),
+            id,
+        }
+    }
+}
+pub fn get_filter_languages(conn: &Connection) -> Result<Vec<Language>> {
     let mut stmt = conn.prepare(FILTER_LANGUAGES_QUERY)?;
-    let language_iter = stmt.query_map([], |row|
-        Ok(Language {
-            name: row.get(0)?,
-            id: row.get(1)?,
-        }),
-    )?;
+    let language_iter = stmt.query_map([], |row| {
+        let name = row.get(0)?;
+        let id = row.get(1)?;
+        Ok(Language { name, id })
+    })?;
     let languages = language_iter.filter_map(Result::ok).collect();
     Ok(languages)
 }
@@ -133,7 +96,7 @@ pub fn get_lesser_known_movies(conn: &Connection, pagination: &Pagination) -> Re
     let mut stmt = conn.prepare(MOVIES_QUERY)?;
     let limit = pagination.per_page;
     let offset = pagination.per_page * (pagination.page - 1);
-    let movie_iter = stmt.query_map([limit, offset], |row| Movie::parse_movie(row))?;
+    let movie_iter = stmt.query_map([limit, offset], Movie::parse_movie)?;
 
     let movies = movie_iter
         .filter_map(Result::ok) // Keeps only `Ok(movie)` and discards `Err(_)`
@@ -141,17 +104,17 @@ pub fn get_lesser_known_movies(conn: &Connection, pagination: &Pagination) -> Re
     Ok(movies)
 }
 
-pub fn get_lesser_known_movies_filtered(
+pub fn get_lesser_known_movies_filtered_by_language(
     conn: &Connection,
     pagination: &Pagination,
-    language_ids: Vec<i32>,
+    language_ids: &[i32],
 ) -> Result<Vec<Movie>> {
     let mut stmt = conn.prepare(FILTER_QUERY)?;
     let mut movies = vec![];
-    for i in language_ids {
+    for &i in language_ids {
         let limit = pagination.per_page;
         let offset = pagination.per_page * (pagination.page - 1);
-        let movie_iter = stmt.query_map([i, limit as i32, offset as i32], |row| Movie::parse_movie(row))?;
+        let movie_iter = stmt.query_map([i, limit as i32, offset as i32], Movie::parse_movie)?;
 
         let m = movie_iter
             .filter_map(Result::ok) // Keeps only `Ok(movie)` and discards `Err(_)`
@@ -166,4 +129,55 @@ pub fn get_lesser_known_movies_filtered(
     }
 
     Ok(movies)
+}
+
+mod queries {
+
+    pub const GENRE_QUERY: &str = r#"
+SELECT
+g.genre
+FROM movies m
+JOIN movies_genres mg ON m.tconst = mg.movie_tconst
+JOIN genres g ON g.id = mg.genre_id
+WHERE m.tconst = ?;
+"#;
+    pub const MOVIE_QUERY: &str = r#"
+SELECT
+m.tconst, m.primaryTitle, m.originalTitle,
+m.startYear, m.runtimeMinutes, m.averageRating,
+m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
+FROM movies m 
+JOIN movies_languages ml ON m.tconst = ml.movie_id
+JOIN languages l ON ml.language_id = l.id
+WHERE m.tconst = ?
+GROUP BY m.tconst;
+"#;
+    pub const FILTER_LANGUAGES_QUERY: &str = r#"
+SELECT
+    l.name, l.id
+FROM languages l
+ORDER BY l.name;
+"#;
+    pub(crate) const FILTER_QUERY: &str = "
+SELECT
+    m.tconst, m.primaryTitle, m.originalTitle,
+    m.startYear, m.runtimeMinutes, m.averageRating, 
+    m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
+FROM movies m 
+JOIN movies_languages ml ON m.tconst = ml.movie_id JOIN languages l ON ml.language_id = l.id
+WHERE l.id = ?
+GROUP BY m.tconst ORDER BY averageRating DESC
+LIMIT ? OFFSET ?;";
+
+    pub const MOVIES_QUERY: &str = r#"
+SELECT
+    m.tconst, m.primaryTitle, m.originalTitle,
+    m.startYear, m.runtimeMinutes, m.averageRating,
+    m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
+FROM movies m JOIN movies_languages ml ON m.tconst = ml.movie_id
+JOIN languages l ON ml.language_id = l.id
+GROUP BY m.tconst
+ORDER BY averageRating DESC
+LIMIT ? OFFSET ?;
+"#;
 }

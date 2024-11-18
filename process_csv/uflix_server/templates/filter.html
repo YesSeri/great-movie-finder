@@ -1,23 +1,39 @@
+<!--suppress XmlDuplicatedId -->
 <form class="filter__form" hx-get="/movies" hx-target="#movie-grid">
-    <fieldset>
-        <button class="language__button language__button--show">Show</button>
-        <button class="language__button language__button--hide hidden">Hide</button>
-        <legend>Languages</legend>
-        <div class="language__container hidden">
-            <input type="text" id="language-search" class="language__search" placeholder="Search languages..."/> {% for
-            lang in filter_languages %} {% if lang.id == -1 %}
-            <div class="language language--all">
-                <input type="checkbox" name="languages" id="lang-{{lang.id}}" value="{{lang.id}}"> <label
-                for="lang-{{lang.id}}">{{lang.name}}</label>
-            </div>
-            {% else %}
-            <div class="language language--specific">
-                <input type="checkbox" name="languages" id="lang-{{lang.id}}" value="{{lang.id}}"> <label
-                for="lang-{{lang.id}}">{{lang.name}}</label>
-            </div>
-            {% endif %} {% endfor %}
-        </div>
-    </fieldset>
-    <button type="submit">Filter</button>
+	<fieldset>
+		<legend>
+			Filter
+		</legend>
+		<div class="language__controls">
+			<button class="language__button language__button--show" aria-controls="language-container">Show</button>
+			<button class="language__button language__button--hide hidden"
+				aria-controls="language-container">Hide</button>
+			<button class="language__button language__button--deselect hidden">Deselect</button>
+		</div>
+		<div class="language__search__container">
+			<input type="text" class="language__search hidden" placeholder="Search languages..." />
+			<p class="language__selected"></p>
+		</div>
+		<div class="language__container hidden">
+
+			<fieldset>
+				<legend>Languages</legend>
+				{% for lang in filter_languages %}
+				{% if lang.id == -1 %}
+				<div class="language language--all">
+					<input type="checkbox" name="languages" id="lang-{{lang.id}}" value="{{lang.id}}">
+					<label for="lang-{{lang.id}}">{{lang.name}}</label>
+				</div>
+				{% else %}
+				<div class="language language--specific">
+					<input type="checkbox" name="languages" id="lang-{{lang.id}}" value="{{lang.id}}">
+					<label for="lang-{{lang.id}}">{{lang.name}}</label>
+				</div>
+				{% endif %}
+				{% endfor %}
+			</fieldset>
+		</div>
+		<button type="submit">Search</button>
+	</fieldset>
 </form>
 <script src="/assets/js/filter.js"></script>
