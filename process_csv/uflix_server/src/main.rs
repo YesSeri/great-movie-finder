@@ -40,7 +40,10 @@ async fn main() {
         .await
         .expect("failed to bind to address");
 
-    tracing::debug!("listening on http://{}", listener.local_addr().expect("could not get local address"));
+    tracing::debug!(
+        "listening on http://{}",
+        listener.local_addr().expect("could not get local address")
+    );
 
     axum::serve(listener, app.layer(TraceLayer::new_for_http()))
         .await

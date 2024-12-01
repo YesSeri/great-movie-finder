@@ -98,9 +98,7 @@ pub fn get_lesser_known_movies(conn: &Connection, pagination: &Pagination) -> Re
     let offset = pagination.per_page * (pagination.page - 1);
     let movie_iter = stmt.query_map([limit, offset], Movie::parse_movie)?;
 
-    let movies = movie_iter
-        .filter_map(Result::ok) // Keeps only `Ok(movie)` and discards `Err(_)`
-        .collect::<Vec<Movie>>();
+    let movies = movie_iter.filter_map(Result::ok).collect::<Vec<Movie>>();
     Ok(movies)
 }
 
@@ -116,11 +114,8 @@ pub fn get_lesser_known_movies_filtered_by_language(
         let offset = pagination.per_page * (pagination.page - 1);
         let movie_iter = stmt.query_map([i, limit as i32, offset as i32], Movie::parse_movie)?;
 
-        let m = movie_iter
-            .filter_map(Result::ok) // Keeps only `Ok(movie)` and discards `Err(_)`
-            .collect::<Vec<Movie>>();
+        let m = movie_iter.filter_map(Result::ok).collect::<Vec<Movie>>();
 
-        // add the movies to the list that are not already in it
         for movie in m {
             if !movies.contains(&movie) {
                 movies.push(movie);
@@ -140,7 +135,7 @@ FROM movies m
 JOIN movies_genres mg ON m.tconst = mg.movie_tconst
 JOIN genres g ON g.id = mg.genre_id
 WHERE m.tconst = ?;
-"#;
+    "#;
     pub const MOVIE_QUERY: &str = r#"
 SELECT
 m.tconst, m.primaryTitle, m.originalTitle,
@@ -151,13 +146,13 @@ JOIN movies_languages ml ON m.tconst = ml.movie_id
 JOIN languages l ON ml.language_id = l.id
 WHERE m.tconst = ?
 GROUP BY m.tconst;
-"#;
+    "#;
     pub const FILTER_LANGUAGES_QUERY: &str = r#"
 SELECT
     l.name, l.id
 FROM languages l
 ORDER BY l.name;
-"#;
+    "#;
     pub(crate) const FILTER_QUERY: &str = "
 SELECT
     m.tconst, m.primaryTitle, m.originalTitle,
@@ -179,5 +174,5 @@ JOIN languages l ON ml.language_id = l.id
 GROUP BY m.tconst
 ORDER BY averageRating DESC
 LIMIT ? OFFSET ?;
-"#;
+    "#;
 }

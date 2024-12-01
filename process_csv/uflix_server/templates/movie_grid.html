@@ -1,6 +1,6 @@
 <div id="movie-grid">
 	{% for movie in movies %}
-	<div onclick="window.location.href = '/movies/{{movie.tconst}}'" class="card">
+	<div onclick="window.location.href = '/movies/{{movie.tconst}}'" style="cursor: pointer;" class="card">
 		<h4>{{ movie.primary_title }} ({{ movie.start_year }})</h4>
 		<hr>
 		<ul>
@@ -12,7 +12,7 @@
 			</li>
 		</ul>
 		{% if let Some(poster_url) = movie.poster_url %}
-		<!-- <img src=" {{ poster_url }}" alt="{{ movie.primary_title }} poster" width="282" height="420"> -->
+		<img src=" {{ poster_url }}" alt="{{ movie.primary_title }} poster" width="282" height="420">
 		{% endif %}
 	</div>
 	{% endfor %}

@@ -14,7 +14,8 @@
 </p>
 <ul>
 	<li>
-		Votes: {{num_votes}} minutes
+{% if num_votes > 10000 -%} Votes: {{num_votes/1000}}k votes 
+{% else -%} Votes: {{num_votes}} votes {% endif -%}
 	</li>
 	<li> {{ "{} h {} min"|format(runtime_minutes/60, runtime_minutes%60)}} </li>
 	<li>
