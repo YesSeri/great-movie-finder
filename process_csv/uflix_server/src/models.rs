@@ -57,8 +57,8 @@ pub fn get_movie(conn: &Connection, tconst: &str) -> Result<Movie> {
 
 #[derive(Deserialize, Debug)]
 pub struct Pagination {
-    page: usize,
-    per_page: usize,
+    pub page: usize,
+    pub per_page: usize,
 }
 
 impl Pagination {
@@ -102,6 +102,11 @@ pub fn get_lesser_known_movies(conn: &Connection, pagination: &Pagination) -> Re
     Ok(movies)
 }
 
+pub fn get_movie_count(conn: &Connection) -> Result<usize> {
+    let mut stmt = conn.prepare("SELECT COUNT(*) FROM movies")?;
+    let count = stmt.query_row([], |row| row.get(0))?;
+    Ok(count)
+}
 pub fn get_lesser_known_movies_filtered_by_language(
     conn: &Connection,
     pagination: &Pagination,

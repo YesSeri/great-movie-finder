@@ -24,7 +24,7 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let conn = rusqlite::Connection::open("../movies.db").expect("could not open database");
+    let conn = rusqlite::Connection::open("./movies.db").expect("could not open database");
     let state = Arc::new(AppState {
         conn: Arc::new(Mutex::new(conn)),
     });

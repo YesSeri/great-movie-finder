@@ -1,0 +1,9 @@
+<hr />
+<div style="display: flex; justify-content: center; gap: 32px;">
+	{% if current_page > 1 %}
+	<a href="/movies?page={{ current_page - 1 }}">&lt; Previous</a>
+	{% endif %}
+	{% if current_page < total_pages %} 
+	<a href="/movies?page={{ current_page + 1 }}">Next &gt;</a>
+	{% endif %}
+</div>

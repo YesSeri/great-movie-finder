@@ -1431,7 +1431,6 @@ dependencies = [
  "askama_axum",
  "axum",
  "axum-extra",
- "base64",
  "lazy_static",
  "reqwest",
  "rusqlite",

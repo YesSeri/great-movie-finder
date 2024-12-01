@@ -1,14 +1,9 @@
 use std::sync::Arc;
 
-use lazy_static::lazy_static;
-use std::collections::HashMap;
-use tokio::sync::RwLock;
-
-use base64::{engine::general_purpose::STANDARD, Engine};
 use std::path::Path;
 
 use crate::{
-    models::{self, get_lesser_known_movies, Language, Movie, Pagination},
+    models::{self, get_lesser_known_movies, get_movie_count, Language, Movie, Pagination},
     templates::{MovieTemplate, MoviesTemplate},
 };
 use crate::{
@@ -27,7 +22,7 @@ use tokio::fs as tokio_fs;
 use tokio::io::AsyncWriteExt;
 
 const ALL_LANGUAGES: i32 = -1;
-const CACHE_DIR: &str = "/assets/cache";
+const CACHE_DIR: &str = "assets/cache";
 
 #[axum::debug_handler]
 pub async fn get_movie(
@@ -51,20 +46,19 @@ pub async fn get_movie(
 async fn update_poster_url(movie: &mut Movie) {
     if let Some(ref poster_url) = movie.poster_url {
         if let Ok(local_image_path) = fetch_image(poster_url).await {
-            movie.poster_url = Some(format!("{CACHE_DIR}/{local_image_path}"));
+            movie.poster_url = Some(local_image_path);
+        } else {
+            movie.poster_url = Some("#".to_string());
         }
     }
 }
-
 
 #[derive(Deserialize, Debug)]
 pub struct GetAllMoviesParams {
     pub languages: Option<Vec<i32>>,
     pub page: Option<usize>,
-    pub per_page: Option<usize>,
+    pub _per_page: Option<usize>,
 }
-
-
 
 #[axum::debug_handler]
 pub async fn get_movies(
@@ -73,11 +67,13 @@ pub async fn get_movies(
 ) -> Result<impl IntoResponse, StatusCode> {
     let page = params.page.unwrap_or(1);
     let pagination = Pagination::new(page);
-    let (movies, filter_languages) = {
+    let (movies, filter_languages, total_pages) = {
         let conn = &*state
             .conn
             .lock()
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        let movie_count = get_movie_count(conn).unwrap_or(1000);
+        let total_pages = movie_count / pagination.per_page + 1;
 
         let languages = params
             .languages
@@ -88,22 +84,20 @@ pub async fn get_movies(
             get_lesser_known_movies(conn, &pagination)
         };
 
-
-
         let filter_languages = get_filter_languages(conn);
         let filter_languages: Result<Vec<Language>, rusqlite::Error> =
             filter_languages.map(|mut languages| {
                 languages.insert(0, Language::new("All", -1));
                 languages
             });
-        (movies, filter_languages)
+        (movies, filter_languages, total_pages)
     };
 
     if let (Ok(mut movies), Ok(filter_languages)) = (movies, filter_languages) {
         for movie in movies.iter_mut() {
             update_poster_url(movie).await;
         }
-        let template = MoviesTemplate::from((movies, filter_languages));
+        let template = MoviesTemplate::from((movies, filter_languages, page, total_pages));
         Ok(template)
     } else {
         tracing::info!("Failed to get movies. Returning 500.");
@@ -113,28 +107,23 @@ pub async fn get_movies(
     }
 }
 
-lazy_static! {
-    static ref IMAGE_CACHE: RwLock<HashMap<String, String>> = RwLock::new(HashMap::new());
-}
-
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 
 pub async fn fetch_image(poster_url: &str) -> Result<String, Box<dyn std::error::Error>> {
     let mut hasher = Sha256::new();
     hasher.update(poster_url);
     let poster_url_hash = format!("{:x}", hasher.finalize());
-    let cache_key = format!("{}/{}.jpg",CACHE_DIR, poster_url_hash);
-    tracing::debug!("Cache key: {:?}", &cache_key);
+    let cache_file = format!("{}/{}.jpg", CACHE_DIR, poster_url_hash);
+    let absolute_url_cache_file = format!("/{cache_file}");
 
-    if Path::new(&cache_key).exists() {
-        return Ok(cache_key);
+    if Path::new(&cache_file).exists() {
+        return Ok(absolute_url_cache_file);
     }
 
     let response = reqwest::get(poster_url).await?;
     let image_data = response.bytes().await?;
-
-    tokio_fs::create_dir_all("assets/cache").await?;
-    let mut file = tokio_fs::File::create(&cache_key).await?;
+    tokio_fs::create_dir_all(CACHE_DIR).await?;
+    let mut file = tokio_fs::File::create(&cache_file).await?;
     file.write_all(&image_data).await?;
-    Ok(cache_key)
+    Ok(absolute_url_cache_file)
 }
