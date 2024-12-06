@@ -1,3 +1,7 @@
+* {
+	box-sizing: border-box;
+}
+
 .hidden {
 	display: none;
 }
@@ -10,27 +14,33 @@
 #movie-grid {
 	grid-template-columns: 1fr;
 	gap: 16px;
+	
 }
 
 /* Two items per row (from 300px to 699px) */
-@media (min-width: 300px) {
+@media (min-width: 600px) {
 	#movie-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
 }
 
-/* Three items per row (from 700px and above) */
-@media (min-width: 700px) {
-	#movie-grid {
-		grid-template-columns: repeat(3, 1fr);
-	}
-}
 
 .card {
 	cursor: pointer;
 	border: 1px solid var(--border);
 	padding: 8px;
 	border-radius: 4px;
+	height: 100%;
+	margin-bottom: 8px;
+	h4 {
+		height:50px;
+		margin: 8px 8px 4px;
+	}
+}
+
+.card img {
+	margin: auto;
+	display: block;
 }
 
 img {

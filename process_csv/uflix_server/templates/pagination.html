@@ -1,9 +1,19 @@
 <hr />
 <div style="display: flex; justify-content: center; gap: 32px;">
+	{% if let Some(filter_languages_query_string) = filter_languages_query_string %}
+	{% if current_page > 1 %}
+	<a href="/movies?page={{ current_page - 1 }}&{{filter_languages_query_string}}">&lt; Previous</a>
+	{% endif %}
+	{% if is_next_page %} <a href="/movies?page={{ current_page + 1 }}&{{filter_languages_query_string}}">
+		Next &gt;</a>
+	{% endif %}
+	{% else %}
+
 	{% if current_page > 1 %}
 	<a href="/movies?page={{ current_page - 1 }}">&lt; Previous</a>
 	{% endif %}
-	{% if current_page < total_pages %} 
-	<a href="/movies?page={{ current_page + 1 }}">Next &gt;</a>
+	{% if is_next_page %} <a href="/movies?page={{ current_page + 1 }}">
+		Next &gt;</a>
+	{% endif %}
 	{% endif %}
 </div>

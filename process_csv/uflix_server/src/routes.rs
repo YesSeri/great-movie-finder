@@ -1,10 +1,9 @@
-use std::sync::Arc;
-
-use std::path::Path;
+use std::{error, path::PathBuf, sync::Arc};
+use sha2::{Digest, Sha256};
 
 use crate::{
-    models::{self, get_lesser_known_movies, get_movie_count, Language, Movie, Pagination},
-    templates::{MovieTemplate, MoviesTemplate},
+    models::{self, get_lesser_known_movies, Language, Movie, Pagination},
+    templates::{AboutTemplate, MovieTemplate, MoviesTemplate},
 };
 use crate::{
     models::{get_filter_languages, get_lesser_known_movies_filtered_by_language},
@@ -16,14 +15,17 @@ use axum::{
     response::IntoResponse,
 };
 use axum_extra::extract::Query;
-use reqwest;
 use serde::Deserialize;
-use tokio::fs as tokio_fs;
 use tokio::io::AsyncWriteExt;
 
 const ALL_LANGUAGES: i32 = -1;
 const CACHE_DIR: &str = "assets/cache";
 
+#[axum::debug_handler]
+pub async fn get_about() -> Result<impl IntoResponse, StatusCode> {
+    let about_page = AboutTemplate;
+    Ok(about_page)
+}
 #[axum::debug_handler]
 pub async fn get_movie(
     extract::Path(tconst): extract::Path<String>,
@@ -67,16 +69,15 @@ pub async fn get_movies(
 ) -> Result<impl IntoResponse, StatusCode> {
     let page = params.page.unwrap_or(1);
     let pagination = Pagination::new(page);
-    let (movies, filter_languages, total_pages) = {
+    let (movies, filter_languages, is_next_page) = {
         let conn = &*state
             .conn
             .lock()
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-        let movie_count = get_movie_count(conn).unwrap_or(1000);
-        let total_pages = movie_count / pagination.per_page + 1;
 
         let languages = params
             .languages
+            .clone()
             .filter(|languages| !languages.contains(&ALL_LANGUAGES));
         let movies = if let Some(languages) = &languages {
             get_lesser_known_movies_filtered_by_language(conn, &pagination, languages)
@@ -84,20 +85,41 @@ pub async fn get_movies(
             get_lesser_known_movies(conn, &pagination)
         };
 
+        let is_next_page = movies
+            .as_ref()
+            .map(|movies| {
+                let total_movies = movies.len();
+                total_movies == pagination.per_page
+            })
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
         let filter_languages = get_filter_languages(conn);
         let filter_languages: Result<Vec<Language>, rusqlite::Error> =
             filter_languages.map(|mut languages| {
                 languages.insert(0, Language::new("All", -1));
                 languages
             });
-        (movies, filter_languages, total_pages)
+        (movies, filter_languages, is_next_page)
     };
 
     if let (Ok(mut movies), Ok(filter_languages)) = (movies, filter_languages) {
         for movie in movies.iter_mut() {
             update_poster_url(movie).await;
         }
-        let template = MoviesTemplate::from((movies, filter_languages, page, total_pages));
+        let filter_languages_query_string = params.languages.map(|languages| {
+            languages
+                .iter()
+                .map(|language| format!("languages={}", language))
+                .collect::<Vec<String>>()
+                .join("&")
+        });
+        tracing::info!("movies length {:?}", movies.len());
+        let template = MoviesTemplate::from((
+                movies,
+                filter_languages,
+                filter_languages_query_string,
+                page,
+                is_next_page,
+        ));
         Ok(template)
     } else {
         tracing::info!("Failed to get movies. Returning 500.");
@@ -107,23 +129,35 @@ pub async fn get_movies(
     }
 }
 
-use sha2::{Digest, Sha256};
+async fn get_age(file: &tokio::fs::File) -> Result<std::time::Duration, Box<dyn error::Error>> {
+    let metadata = file.metadata().await?;
+    let creation_time = metadata.created()?;
+    let age = creation_time.elapsed()?;
+    Ok(age)
+}
+
+const CACHE_EXPIRATION_SECS: u64 = 60 * 60 * 24 * 7; // 1 week
 
 pub async fn fetch_image(poster_url: &str) -> Result<String, Box<dyn std::error::Error>> {
     let mut hasher = Sha256::new();
     hasher.update(poster_url);
     let poster_url_hash = format!("{:x}", hasher.finalize());
-    let cache_file = format!("{}/{}.jpg", CACHE_DIR, poster_url_hash);
-    let absolute_url_cache_file = format!("/{cache_file}");
-
-    if Path::new(&cache_file).exists() {
-        return Ok(absolute_url_cache_file);
+    let cache_file = PathBuf::from(CACHE_DIR).join(format!("{}.jpg", poster_url_hash));
+    let absolute_url_cache_file = format!("/{}", cache_file.display());
+     if cache_file.exists() {
+        if let Ok(file) = tokio::fs::File::open(&cache_file).await {
+            let age = get_age(&file).await?;
+            if age.as_secs() < CACHE_EXPIRATION_SECS {
+                return Ok(absolute_url_cache_file);
+            }
+        }
+        tracing::info!("Removing old cache file: {:?}", &cache_file);
+        tokio::fs::remove_file(&cache_file).await?;
     }
-
     let response = reqwest::get(poster_url).await?;
     let image_data = response.bytes().await?;
-    tokio_fs::create_dir_all(CACHE_DIR).await?;
-    let mut file = tokio_fs::File::create(&cache_file).await?;
+    tokio::fs::create_dir_all(CACHE_DIR).await?;
+    let mut file = tokio::fs::File::create(&cache_file).await?;
     file.write_all(&image_data).await?;
     Ok(absolute_url_cache_file)
 }

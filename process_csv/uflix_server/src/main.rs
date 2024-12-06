@@ -31,6 +31,7 @@ async fn main() {
     let service = ServeDir::new("assets");
     let app = Router::new()
         .route("/", get(get_movies))
+        .route("/about", get(get_about))
         .route("/movies", get(get_movies))
         .route("/movies/:tconst", get(get_movie))
         .nest_service("/assets", service)

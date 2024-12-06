@@ -1,6 +1,6 @@
 use crate::models::queries::*;
 use askama::Template;
-use rusqlite::{Connection, Result, Row};
+use rusqlite::{Connection, Result, Row, ToSql};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Debug, Template)]
@@ -102,32 +102,48 @@ pub fn get_lesser_known_movies(conn: &Connection, pagination: &Pagination) -> Re
     Ok(movies)
 }
 
-pub fn get_movie_count(conn: &Connection) -> Result<usize> {
-    let mut stmt = conn.prepare("SELECT COUNT(*) FROM movies")?;
-    let count = stmt.query_row([], |row| row.get(0))?;
-    Ok(count)
-}
 pub fn get_lesser_known_movies_filtered_by_language(
     conn: &Connection,
     pagination: &Pagination,
     language_ids: &[i32],
 ) -> Result<Vec<Movie>> {
-    let mut stmt = conn.prepare(FILTER_QUERY)?;
-    let mut movies = vec![];
-    for &i in language_ids {
-        let limit = pagination.per_page;
-        let offset = pagination.per_page * (pagination.page - 1);
-        let movie_iter = stmt.query_map([i, limit as i32, offset as i32], Movie::parse_movie)?;
+    let placeholders = language_ids
+        .iter()
+        .map(|_| "?")
+        .collect::<Vec<_>>()
+        .join(", ");
+    let query = format!(
+        "
+        SELECT DISTINCT
+            m.tconst, m.primaryTitle, m.originalTitle,
+            m.startYear, m.runtimeMinutes, m.averageRating,
+            m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
+        FROM movies m
+        JOIN movies_languages ml ON m.tconst = ml.movie_id
+        JOIN languages l ON ml.language_id = l.id
+        WHERE l.id IN ({})
+        GROUP BY m.tconst
+        ORDER BY m.averageRating DESC
+        LIMIT ? OFFSET ?;
+        ",
+        placeholders
+    );
 
-        let m = movie_iter.filter_map(Result::ok).collect::<Vec<Movie>>();
+    // Prepare the statement
+    let mut stmt = conn.prepare(&query)?;
 
-        for movie in m {
-            if !movies.contains(&movie) {
-                movies.push(movie);
-            }
-        }
-    }
+    // Collect parameters
+    let limit = pagination.per_page as i32;
+    let offset = ((pagination.page as i32) - 1) * limit;
+    let mut params: Vec<&dyn rusqlite::ToSql> =
+        language_ids.iter().map(|id| id as &dyn ToSql).collect();
+    params.push(&limit);
+    params.push(&offset);
 
+    // Execute the query
+    let movie_iter = stmt.query_map(params.as_slice(), Movie::parse_movie)?;
+
+    let movies = movie_iter.filter_map(Result::ok).collect::<Vec<Movie>>();
     Ok(movies)
 }
 
@@ -158,17 +174,6 @@ SELECT
 FROM languages l
 ORDER BY l.name;
     "#;
-    pub(crate) const FILTER_QUERY: &str = "
-SELECT
-    m.tconst, m.primaryTitle, m.originalTitle,
-    m.startYear, m.runtimeMinutes, m.averageRating, 
-    m.poster_url, m.numVotes, GROUP_CONCAT(l.name, ', ')
-FROM movies m 
-JOIN movies_languages ml ON m.tconst = ml.movie_id JOIN languages l ON ml.language_id = l.id
-WHERE l.id = ?
-GROUP BY m.tconst ORDER BY averageRating DESC
-LIMIT ? OFFSET ?;";
-
     pub const MOVIES_QUERY: &str = r#"
 SELECT
     m.tconst, m.primaryTitle, m.originalTitle,

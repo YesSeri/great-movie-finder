@@ -2,31 +2,30 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ title }} - Unknown Flix - UFlix {% endblock %}</title>
-    <link rel="stylesheet" type="text/css" href="/assets/css/water.css">
-    {% block head %}{% endblock %}
-    <link rel="stylesheet" type="text/css" href="/assets/css/custom.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}{{ title }} - FlixFinds {% endblock %}</title>
+	<link rel="stylesheet" href="/assets/css/water.css">
+	<link rel="stylesheet" href="/assets/css/custom.css">
+	{% block head %}{% endblock %}
 </head>
 
 <body>
-<header>
-    <section>
-        <nav>
-            <ul>
-                <li><a href="/movies">Movies</a></li>
-                <li><a href="/about">About</a></li>
-            </ul>
-        </nav>
-        <h1>Uflix</h1>
-    </section>
-</header>
-<hr>
-
-<main>
-    {% block content %}<p>Placeholder content</p>{% endblock %}
-</main>
+	<header>
+		<section>
+			<nav>
+				<ul>
+					<li><a href="/movies">Movies</a></li>
+					<li><a href="/about">About</a></li>
+				</ul>
+			</nav>
+			<h1>FlixFinds</h1>
+		</section>
+	</header>
+	<hr>
+	<main>
+		{% block content %}<p>Placeholder content</p>{% endblock %}
+	</main>
 </body>
 
 </html>

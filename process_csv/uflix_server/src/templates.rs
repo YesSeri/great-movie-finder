@@ -1,29 +1,36 @@
-use crate::models::{Language, Movie, Pagination};
+use crate::models::{Language, Movie};
 use askama_axum::Template;
+
+#[derive(Template, Debug)]
+#[template(path = "about.html")]
+pub struct AboutTemplate;
 
 #[derive(Template, Debug)]
 #[template(path = "movies.html")]
 pub struct MoviesTemplate {
     pub movies: Vec<Movie>,
     pub filter_languages: Vec<Language>,
+    pub filter_languages_query_string: Option<String>,
     pub current_page: usize,
-    pub total_pages: usize,
+    pub is_next_page: bool,
 }
 
-impl From<(Vec<Movie>, Vec<Language>, usize, usize)> for MoviesTemplate {
+impl From<(Vec<Movie>, Vec<Language>, Option<String>, usize, bool)> for MoviesTemplate {
     fn from(
-        (movies, filter_languages, current_page, total_pages): (
+        (movies, filter_languages, filter_languages_query_string, current_page, is_next_page): (
             Vec<Movie>,
             Vec<Language>,
+            Option<String>,
             usize,
-            usize,
+            bool,
         ),
     ) -> Self {
         Self {
             movies,
             filter_languages,
+            filter_languages_query_string,
             current_page,
-            total_pages,
+            is_next_page,
         }
     }
 }
