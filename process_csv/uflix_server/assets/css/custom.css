@@ -46,3 +46,8 @@
 img {
 	border-radius: 8px;
 }
+
+nav > ul {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, 100px);
+}
